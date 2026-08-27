@@ -1,0 +1,4 @@
+import type { Role, User } from '../types';
+const base=import.meta.env.VITE_API_URL||'http://localhost:4000/api';
+async function request<T>(path:string,body:object):Promise<T>{const response=await fetch(`${base}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.message||'Request failed');return data as T;}
+export const authApi={login:(email:string,password:string)=>request<{message:string}>('/auth/login',{email,password}),register:(data:{name:string;email:string;phone:string;password:string;role:Exclude<Role,'admin'>})=>request<{message:string}>('/auth/register',data),verifyOtp:async(email:string,code:string):Promise<User>=>{const data=await request<{token:string;user:User}>('/auth/verify-otp',{email,code});localStorage.setItem('cf-token',data.token);return data.user}};
